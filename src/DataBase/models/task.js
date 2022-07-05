@@ -10,9 +10,10 @@ const Task = mongoose.model('Tasks', {
         type: Boolean,
         default: false
     },
-    user: {
+    user_id: {
         required: true,
-        type: mongoose.Schema.Types.ObjectId
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }
 })
 module.exports = Task
