@@ -21,19 +21,6 @@ class UserController {
         }
     }
 
-    readSingleUser = async (req, res)=>{
-        const _id = req.params.id
-        try{
-            const user = await User.findById(_id)
-            if(!user) {
-                return res.status(404).send()
-            }
-            res.status(201).send(user)
-        }catch(err){
-            res.status(500).send(err)
-        }
-    }
-
     updateUser = async(req, res)=>{
         const updates = req.body
         const updatesProperties = Object.keys(updates)

@@ -8,7 +8,6 @@ router.patch('/users/me', auth, userController.updateUser)
 router.delete('/users/me', auth, userController.removeUser)
 router.post('/users/logout', auth, userController.logOut)
 router.post('/users/logoutAll', auth, userController.logOutAll)
-router.get('/users/:id', userController.readSingleUser)
 router.post('/users', userController.createUser)
 router.post('/users/login', userController.logIn)
 
