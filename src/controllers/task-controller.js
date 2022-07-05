@@ -16,7 +16,7 @@ class TaskController {
 
     readTasks = async (req, res)=>{
         try{
-            const tasks = await Task.find()
+            const tasks = await Task.find({user_id: req.user._id})
             res.status(200).send(tasks)
         }catch(err){
             res.status(500).send(err)
@@ -26,7 +26,7 @@ class TaskController {
     readSingleTask = async (req, res)=>{
         const _id = req.params.id
         try{
-            const task = await  Task.findById(_id)
+            const task = await Task.findOne({_id, user_id: req.user._id})
             if(!task) {
                 return res.status(404).send()
             }
@@ -46,7 +46,7 @@ class TaskController {
             return res.status(400).send({error: 'Invalid updates'})
         }
         try{
-            const task = await Task.findById(_id)
+            const task = await Task.findOne({_id, user_id: req.user._id})
             if(!task){
                 return res.status(404).send()
             }
@@ -61,7 +61,7 @@ class TaskController {
     removeTask = async (req, res)=>{
         const _id = req.params.id
         try{
-            const task = await Task.findByIdAndDelete(_id)
+            const task = await Task.findOneAndDelete({_id, user_id: req.user._id})
             if(!task){
                 return res.status(404).send()
             }
