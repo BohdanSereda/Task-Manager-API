@@ -91,5 +91,6 @@ userSchema.pre('remove', async function(next){
     await Task.deleteMany({user_id: this._id})
     next()
 })
+
 const User = mongoose.model('User', userSchema)
- module.exports = User
+module.exports = User
