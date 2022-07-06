@@ -1,4 +1,3 @@
-const Task = require("../models/task");
 const taskService = require("../services/task-service");
 class TaskController {
     createTask = async (req, res) => {
