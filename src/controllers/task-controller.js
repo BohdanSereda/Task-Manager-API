@@ -1,83 +1,59 @@
 const Task = require("../models/task");
-const User = require("../models/user");
-const taskHelper = require("../helpers/task-helper");
+const taskService = require("../services/task-service");
 class TaskController {
     createTask = async (req, res) => {
-        const task = new Task({
-            ...req.body,
-            user_id: req.user._id,
-        });
         try {
-            await task.save();
+            const task = await taskService.createTask(req.body, req.user._id);
+            console.log(task);
             res.status(201).send(task);
         } catch (err) {
-            res.status(400).send(err);
+            res.status(400).send(err.message);
         }
     };
 
     readTasks = async (req, res) => {
         try {
-            const user = await User.findById(req.user._id)
-                .populate(taskHelper.formatePopulateQuery(req.query, "tasks"))
-                .exec();
-            res.status(200).send(user.tasks);
+            const tasks = await taskService.readTasks(req.user._id, req.query);
+            res.status(200).send(tasks);
         } catch (err) {
-            res.status(500).send(err);
+            res.status(500).send(err.message);
         }
     };
 
     readSingleTask = async (req, res) => {
-        const _id = req.params.id;
         try {
-            const task = await Task.findOne({ _id, user_id: req.user._id });
-            if (!task) {
-                return res.status(404).send();
-            }
+            const task = await taskService.readSingleTask(
+                req.params.id,
+                req.user._id
+            );
             res.status(200).send(task);
         } catch (err) {
-            res.status(500).send(err);
+            res.status(500).send(err.message);
         }
     };
 
     updateTask = async (req, res) => {
-        const updates = req.body;
-        const _id = req.params.id;
-        const updatesProperties = Object.keys(updates);
-        const allowedUpdates = ["description", "completed"];
-        const isValidUpdates = updatesProperties.every((updatesProperty) =>
-            allowedUpdates.includes(updatesProperty)
-        );
-        if (!isValidUpdates) {
-            return res.status(400).send({ error: "Invalid updates" });
-        }
         try {
-            const task = await Task.findOne({ _id, user_id: req.user._id });
-            if (!task) {
-                return res.status(404).send();
-            }
-            updatesProperties.forEach(
-                (update) => (task[update] = req.body[update])
+            const task = await taskService.updateTask(
+                req.body,
+                req.params.id,
+                req.user._id
             );
-            await task.save();
             res.status(200).send(task);
         } catch (err) {
-            res.status(400).send(err);
+            res.status(400).send(err.message);
         }
     };
 
     removeTask = async (req, res) => {
-        const _id = req.params.id;
         try {
-            const task = await Task.findOneAndDelete({
-                _id,
-                user_id: req.user._id,
-            });
-            if (!task) {
-                return res.status(404).send();
-            }
+            const task = await taskService.removeTask(
+                req.params.id,
+                req.user._id
+            );
             res.status(200).send(task);
         } catch (err) {
-            res.status(500).send(err);
+            res.status(500).send(err.message);
         }
     };
 }
