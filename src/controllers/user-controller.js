@@ -1,14 +1,12 @@
-const User = require("../models/user");
+const userService = require("../services/user-service");
 
 class UserController {
     createUser = async (req, res) => {
-        const user = new User(req.body);
         try {
-            const token = await user.generateAuthToken();
-            await user.save();
-            res.status(201).send({ user, token });
+            const userAndToken = await userService.createUser(req.body);
+            res.status(201).send(userAndToken);
         } catch (err) {
-            res.status(400).send(err);
+            res.status(400).send(err.message);
         }
     };
 
@@ -17,28 +15,16 @@ class UserController {
             const user = req.user;
             res.status(200).send(user);
         } catch (err) {
-            res.status(500).send(err);
+            res.status(500).send(err.message);
         }
     };
 
     updateUser = async (req, res) => {
-        const updates = req.body;
-        const updatesProperties = Object.keys(updates);
-        const allowedUpdates = ["name", "age", "email", "password"];
-        const isValidUpdates = updatesProperties.every((updatesProperty) =>
-            allowedUpdates.includes(updatesProperty)
-        );
-        if (!isValidUpdates) {
-            return res.status(400).send({ error: "Invalid updates" });
-        }
         try {
-            updatesProperties.forEach(
-                (update) => (req.user[update] = req.body[update])
-            );
-            await req.user.save();
-            res.status(200).send(req.user);
+            const user = await userService.updateUser(req.body, req.user);
+            res.status(200).send(user);
         } catch (err) {
-            res.status(400).send(err);
+            res.status(400).send(err.message);
         }
     };
 
@@ -47,43 +33,37 @@ class UserController {
             await req.user.remove();
             res.status(200).send(req.user);
         } catch (err) {
-            res.status(500).send(err);
+            res.status(500).send(err.message);
         }
     };
 
     logIn = async (req, res) => {
-        const email = req.body.email;
-        const password = req.body.password;
         try {
-            const user = await User.findByCredentials(email, password);
-            const token = await user.generateAuthToken();
-            res.status(200).send({ user, token });
+            const userAndToken = await userService.logIn(
+                req.body.email,
+                req.body.password
+            );
+            res.status(200).send(userAndToken);
         } catch (err) {
-            res.status(400).send(err);
+            res.status(400).send(err.message);
         }
     };
 
     logOut = async (req, res) => {
-        const user = req.user;
         try {
-            user.tokens = user.tokens.filter((token) => {
-                return token.token !== req.token;
-            });
-            await user.save();
+            await userService.logOut(req.user, req.token);
             res.status(200).send();
         } catch (err) {
-            res.status(500).send(err);
+            res.status(500).send(err.message);
         }
     };
 
     logOutAll = async (req, res) => {
-        const user = req.user;
         try {
-            user.tokens = [];
-            await user.save();
+            await userService.logOutAll(req.user);
             res.status(200).send();
         } catch (err) {
-            res.status(500).send(err);
+            res.status(500).send(err.message);
         }
     };
 }
