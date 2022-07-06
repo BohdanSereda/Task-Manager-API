@@ -24,6 +24,10 @@ class TaskController {
                 .populate({
                     path: "tasks",
                     match,
+                    options: {
+                        limit: parseInt(req.query.limit),
+                        skip: parseInt(req.query.skip),
+                    },
                 })
                 .exec();
             res.status(200).send(user.tasks);
