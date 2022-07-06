@@ -1,5 +1,6 @@
 const Task = require("../models/task");
 const User = require("../models/user");
+const taskHelper = require("../helpers/task-helper");
 class TaskController {
     createTask = async (req, res) => {
         const task = new Task({
@@ -15,20 +16,9 @@ class TaskController {
     };
 
     readTasks = async (req, res) => {
-        const match = {};
-        if (req.query.completed) {
-            match.completed = req.query.completed === "true";
-        }
         try {
             const user = await User.findById(req.user._id)
-                .populate({
-                    path: "tasks",
-                    match,
-                    options: {
-                        limit: parseInt(req.query.limit),
-                        skip: parseInt(req.query.skip),
-                    },
-                })
+                .populate(taskHelper.formatePopulateQuery(req.query, "tasks"))
                 .exec();
             res.status(200).send(user.tasks);
         } catch (err) {
