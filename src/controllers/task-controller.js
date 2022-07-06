@@ -1,5 +1,6 @@
 const Task = require("../models/task");
-
+const User = require("../models/user");
+const taskHelper = require("../helpers/task-helper");
 class TaskController {
     createTask = async (req, res) => {
         const task = new Task({
@@ -16,8 +17,10 @@ class TaskController {
 
     readTasks = async (req, res) => {
         try {
-            const tasks = await Task.find({ user_id: req.user._id });
-            res.status(200).send(tasks);
+            const user = await User.findById(req.user._id)
+                .populate(taskHelper.formatePopulateQuery(req.query, "tasks"))
+                .exec();
+            res.status(200).send(user.tasks);
         } catch (err) {
             res.status(500).send(err);
         }
