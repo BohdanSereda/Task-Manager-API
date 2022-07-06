@@ -1,5 +1,5 @@
 const Task = require("../models/task");
-
+const User = require("../models/user");
 class TaskController {
     createTask = async (req, res) => {
         const task = new Task({
@@ -15,9 +15,18 @@ class TaskController {
     };
 
     readTasks = async (req, res) => {
+        const match = {};
+        if (req.query.completed) {
+            match.completed = req.query.completed === "true";
+        }
         try {
-            const tasks = await Task.find({ user_id: req.user._id });
-            res.status(200).send(tasks);
+            const user = await User.findById(req.user._id)
+                .populate({
+                    path: "tasks",
+                    match,
+                })
+                .exec();
+            res.status(200).send(user.tasks);
         } catch (err) {
             res.status(500).send(err);
         }
