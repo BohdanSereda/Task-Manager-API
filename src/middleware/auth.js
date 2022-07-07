@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/user");
+const User = require("../models/user-model");
+const ApiError = require("../helpers/error-helper");
 const auth = async (req, res, next) => {
     try {
         const token = req.header("Authorization").replace("Bearer ", "");
@@ -16,7 +17,7 @@ const auth = async (req, res, next) => {
         req.user = user;
         next();
     } catch (err) {
-        res.status(401).send({ error: "unauthorized" });
+        return next(ApiError.unauthorizedError());
     }
 };
 
