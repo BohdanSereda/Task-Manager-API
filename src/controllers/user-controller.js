@@ -1,43 +1,43 @@
 const userService = require("../services/user-service");
 
 class UserController {
-    createUser = async (req, res) => {
+    createUser = async (req, res, next) => {
         try {
             const userAndToken = await userService.createUser(req.body);
             res.status(201).send(userAndToken);
         } catch (err) {
-            res.status(400).send(err.message);
+            next(err);
         }
     };
 
-    readProfile = async (req, res) => {
+    readProfile = async (req, res, next) => {
         try {
             const user = req.user;
             res.status(200).send(user);
         } catch (err) {
-            res.status(500).send(err.message);
+            next(err);
         }
     };
 
-    updateUser = async (req, res) => {
+    updateUser = async (req, res, next) => {
         try {
             const user = await userService.updateUser(req.body, req.user);
             res.status(200).send(user);
         } catch (err) {
-            res.status(400).send(err.message);
+            next(err);
         }
     };
 
-    removeUser = async (req, res) => {
+    removeUser = async (req, res, next) => {
         try {
             await req.user.remove();
             res.status(200).send(req.user);
         } catch (err) {
-            res.status(500).send(err.message);
+            next(err);
         }
     };
 
-    logIn = async (req, res) => {
+    logIn = async (req, res, next) => {
         try {
             const userAndToken = await userService.logIn(
                 req.body.email,
@@ -45,25 +45,25 @@ class UserController {
             );
             res.status(200).send(userAndToken);
         } catch (err) {
-            res.status(400).send(err.message);
+            next(err);
         }
     };
 
-    logOut = async (req, res) => {
+    logOut = async (req, res, next) => {
         try {
             await userService.logOut(req.user, req.token);
             res.status(200).send();
         } catch (err) {
-            res.status(500).send(err.message);
+            next(err);
         }
     };
 
-    logOutAll = async (req, res) => {
+    logOutAll = async (req, res, next) => {
         try {
             await userService.logOutAll(req.user);
             res.status(200).send();
         } catch (err) {
-            res.status(500).send(err.message);
+            next(err);
         }
     };
 }

@@ -1,25 +1,24 @@
 const taskService = require("../services/task-service");
 class TaskController {
-    createTask = async (req, res) => {
+    createTask = async (req, res, next) => {
         try {
             const task = await taskService.createTask(req.body, req.user._id);
-            console.log(task);
             res.status(201).send(task);
         } catch (err) {
-            res.status(400).send(err.message);
+            next(err);
         }
     };
 
-    readTasks = async (req, res) => {
+    readTasks = async (req, res, next) => {
         try {
             const tasks = await taskService.readTasks(req.user._id, req.query);
             res.status(200).send(tasks);
         } catch (err) {
-            res.status(500).send(err.message);
+            next(err);
         }
     };
 
-    readSingleTask = async (req, res) => {
+    readSingleTask = async (req, res, next) => {
         try {
             const task = await taskService.readSingleTask(
                 req.params.id,
@@ -27,11 +26,11 @@ class TaskController {
             );
             res.status(200).send(task);
         } catch (err) {
-            res.status(500).send(err.message);
+            next(err);
         }
     };
 
-    updateTask = async (req, res) => {
+    updateTask = async (req, res, next) => {
         try {
             const task = await taskService.updateTask(
                 req.body,
@@ -40,11 +39,11 @@ class TaskController {
             );
             res.status(200).send(task);
         } catch (err) {
-            res.status(400).send(err.message);
+            next(err);
         }
     };
 
-    removeTask = async (req, res) => {
+    removeTask = async (req, res, next) => {
         try {
             const task = await taskService.removeTask(
                 req.params.id,
@@ -52,7 +51,7 @@ class TaskController {
             );
             res.status(200).send(task);
         } catch (err) {
-            res.status(500).send(err.message);
+            next(err);
         }
     };
 }
