@@ -1,9 +1,8 @@
-const Task = require("../models/task");
-const User = require("../models/user");
-const taskHelper = require("../helpers/task-helper");
-
+const User = require("../models/user-model");
+const validationHelper = require("../helpers/validation-helper");
 class UserService {
     createUser = async (user) => {
+        await validationHelper.validateUser(user, false);
         const createUser = new User(user);
         const token = await createUser.generateAuthToken();
         await createUser.save();
@@ -11,14 +10,10 @@ class UserService {
     };
 
     updateUser = async (updates, user) => {
-        const updatesProperties = Object.keys(updates);
-        const allowedUpdates = ["name", "age", "email", "password"];
-        const isValidUpdates = updatesProperties.every((updatesProperty) =>
-            allowedUpdates.includes(updatesProperty)
+        const updatesProperties = await validationHelper.validateUserUpdates(
+            updates,
+            true
         );
-        if (!isValidUpdates) {
-            throw new Error("Error invalid updates");
-        }
         updatesProperties.forEach((update) => (user[update] = updates[update]));
         await user.save();
         return user;
