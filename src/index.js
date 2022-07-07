@@ -5,10 +5,12 @@ const taskRouter = require("./routers/task-router");
 const userRouter = require("./routers/user-router");
 const port = process.env.PORT || 3000;
 const app = express();
+const errorMiddleware = require("./middleware/error");
 
 app.use(express.json());
 app.use(userRouter);
 app.use(taskRouter);
+app.use(errorMiddleware);
 
 const start = async () => {
     try {
