@@ -1,9 +1,12 @@
-const Task = require("../models/task");
-const User = require("../models/user");
+const Task = require("../models/task-model");
+const User = require("../models/user-model");
 const taskHelper = require("../helpers/task-helper");
+const ApiError = require("../helpers/error-helper");
+const validationHelper = require("../helpers/validation-helper");
 
 class TaskService {
     createTask = async (task, userId) => {
+        validationHelper.validateTask(task);
         const createdTask = await Task.create({
             ...task,
             user_id: userId,
@@ -21,24 +24,14 @@ class TaskService {
     readSingleTask = async (taskId, userId) => {
         const task = await Task.findOne({ _id: taskId, user_id: userId });
         if (!task) {
-            throw new Error("Error cannot find task");
+            throw ApiError.notFound("Error cannot find task");
         }
         return task;
     };
 
     updateTask = async (updates, taskId, userId) => {
-        const updatesProperties = Object.keys(updates);
-        const allowedUpdates = ["description", "completed"];
-        const isValidUpdates = updatesProperties.every((updatesProperty) =>
-            allowedUpdates.includes(updatesProperty)
-        );
-        if (!isValidUpdates) {
-            throw new Error("Error invalid updates");
-        }
-        const task = await Task.findOne({ _id: taskId, user_id: userId });
-        if (!task) {
-            throw new Error("Error cannot find task");
-        }
+        const { task, updatesProperties } =
+            await validationHelper.validateTaskUpdates(updates, taskId, userId);
         updatesProperties.forEach((update) => (task[update] = updates[update]));
         await task.save();
         return task;
@@ -50,7 +43,7 @@ class TaskService {
             user_id: userId,
         });
         if (!task) {
-            throw new Error("Error cannot find task");
+            throw ApiError.notFound("Error cannot find task");
         }
         return task;
     };
